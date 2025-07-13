@@ -27,11 +27,18 @@ func LoadConfig(configPath string) (*Config, error) {
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
+	// Enable environment variable expansion
+	v.SetEnvPrefix("")
+	v.AllowEmptyEnv(true)
+	
 	setDefaults(v)
 
 	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
+
+	// Expand environment variables in the config
+	expandEnvVars(v)
 
 	if err := v.Unmarshal(&App); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
@@ -41,6 +48,7 @@ func LoadConfig(configPath string) (*Config, error) {
 		v.WatchConfig()
 		v.OnConfigChange(func(e fsnotify.Event) {
 			log.Println("Config file changed:", e.Name)
+			expandEnvVars(v)
 			if err := v.Unmarshal(&App); err != nil {
 				log.Printf("Error reloading config: %v\n", err)
 			}
@@ -48,6 +56,55 @@ func LoadConfig(configPath string) (*Config, error) {
 	}
 
 	return &App, nil
+}
+
+func expandEnvVars(v *viper.Viper) {
+	// Manually expand environment variables for problematic keys
+	keys := []string{
+		"app.environment",
+		"app.debug",
+		"server.host",
+		"server.port",
+		"server.read_timeout",
+		"server.write_timeout",
+		"server.shutdown_timeout",
+		"database.sqlite.path",
+		"database.sqlite.busy_timeout",
+		"database.sqlite.foreign_keys",
+		"database.sqlite.journal_mode",
+		"database.sqlite.cache_size",
+		"jwt.access_token_secret",
+		"jwt.access_token_expiry",
+		"jwt.refresh_token_secret",
+		"jwt.refresh_token_expiry",
+		"jwt.issuer",
+		"jwt.secure_cookie",
+		"email.provider",
+		"email.smtp.host",
+		"email.smtp.port",
+		"email.smtp.username",
+		"email.smtp.password",
+		"email.smtp.from_email",
+		"email.smtp.from_name",
+		"email.smtp.use_tls",
+		"logger.level",
+		"logger.format",
+		"logger.file_path",
+		"cors.enabled",
+		"cors.allow_origins",
+		"cors.allow_methods",
+		"cors.max_age",
+		"rate_limit.enabled",
+		"rate_limit.requests",
+		"rate_limit.window",
+	}
+
+	for _, key := range keys {
+		if value := v.GetString(key); value != "" {
+			expanded := os.ExpandEnv(value)
+			v.Set(key, expanded)
+		}
+	}
 }
 
 func setDefaults(v *viper.Viper) {
