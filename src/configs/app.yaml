@@ -1,0 +1,55 @@
+app:
+  name: "Brevity"
+  version: "1.0.0"
+  environment: "${APP_ENV}" # local|development|staging|production
+  debug: "${APP_DEBUG}"
+
+server:
+  host: "${SERVER_HOST}"
+  port: "${SERVER_PORT}"
+  read_timeout: "${SERVER_READ_TIMEOUT}"
+  write_timeout: "${SERVER_WRITE_TIMEOUT}"
+  shutdown_timeout: "${SERVER_SHUTDOWN_TIMEOUT}"
+
+database:
+  sqlite:
+    path: "${DB_SQLITE_PATH}"
+    busy_timeout: "${DB_SQLITE_BUSY_TIMEOUT}"
+    foreign_keys: "${DB_SQLITE_FOREIGN_KEYS}"
+    journal_mode: "${DB_SQLITE_JOURNAL_MODE}"
+    cache_size: "${DB_SQLITE_CACHE_SIZE}"
+
+jwt:
+  access_token_secret: "${JWT_ACCESS_SECRET}"
+  access_token_expiry: "${JWT_ACCESS_EXPIRY}"
+  refresh_token_secret: "${JWT_REFRESH_SECRET}"
+  refresh_token_expiry: "${JWT_REFRESH_EXPIRY}"
+  issuer: "${JWT_ISSUER}"
+  secure_cookie: "${JWT_SECURE_COOKIE}"
+
+email:
+  provider: "${EMAIL_PROVIDER}"
+  smtp:
+    host: "${SMTP_HOST}"
+    port: "${SMTP_PORT}"
+    username: "${SMTP_USERNAME}"
+    password: "${SMTP_PASSWORD}"
+    from_email: "${SMTP_FROM_EMAIL}"
+    from_name: "${SMTP_FROM_NAME}"
+    use_tls: "${SMTP_USE_TLS}"
+
+logger:
+  level: "${LOG_LEVEL}" # debug|info|warn|error
+  format: "${LOG_FORMAT}" # json|console
+  file_path: "${LOG_FILE_PATH}"
+
+cors:
+  enabled: "${CORS_ENABLED}"
+  allow_origins: "${CORS_ALLOW_ORIGINS}"
+  allow_methods: "${CORS_ALLOW_METHODS}"
+  max_age: "${CORS_MAX_AGE}"
+
+rate_limit:
+  enabled: "${RATE_LIMIT_ENABLED}"
+  requests: "${RATE_LIMIT_REQUESTS}"
+  window: "${RATE_LIMIT_WINDOW}"
