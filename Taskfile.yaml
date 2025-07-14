@@ -1,0 +1,103 @@
+version: '3'
+
+vars:
+  GO_MODULE: "github.com/imraushankr/brevity"
+  MIGRATIONS_DIR: "src/migrations"
+  DB_FILE: "data/brevity.db"
+  SERVER_CMD: "go run src/cmd/server/main.go"
+  MIGRATE_CREATE_CMD: "go run src/cmd/migrate/create/main.go"
+  MIGRATE_RUN_CMD: "go run src/cmd/migrate/run/main.go"
+  SERVER_ADDRESS: "localhost:8080"
+  HEALTH_URL: "http://{{.SERVER_ADDRESS}}/api/v1/system/health"
+
+tasks:
+  # Server management
+  server:
+    desc: Run the development server with hot reload
+    cmds:
+      - |
+        if command -v air >/dev/null; then
+          air -c .air.toml
+        elif command -v reflex >/dev/null; then
+          reflex -r '\.go$' -s -- sh -c 'go run src/cmd/server/main.go'
+        else
+          echo "Neither air nor reflex found. Running without hot reload..."
+          go run src/cmd/server/main.go
+        fi
+    env:
+      GIN_MODE: debug
+      DB_PATH: "{{.DB_FILE}}"
+
+  server:prod:
+    desc: Run production server
+    cmds:
+      - "{{.SERVER_CMD}}"
+    env:
+      GIN_MODE: release
+      DB_PATH: "{{.DB_FILE}}"
+
+  # Migration management
+  migrate.create:
+    desc: Create new migration files
+    cmds:
+      - "{{.MIGRATE_CREATE_CMD}} {{.CLI_ARGS}}"
+    silent: true
+
+  migrate.up:
+    desc: Apply all pending migrations
+    cmds:
+      - "{{.MIGRATE_RUN_CMD}} up -db {{.DB_FILE}}"
+
+  migrate.down:
+    desc: Roll back the last migration
+    cmds:
+      - "{{.MIGRATE_RUN_CMD}} down -db {{.DB_FILE}}"
+
+  # Database management (Windows compatible)
+  db.reset:
+    desc: Reset the database (drop and recreate)
+    cmds:
+      - "if exist {{.DB_FILE}} del {{.DB_FILE}} || if [ -f {{.DB_FILE}} ]; then rm {{.DB_FILE}}; fi"
+      - "mkdir -p data"
+      - task: migrate.up
+
+  # Development setup
+  setup:
+    desc: Setup development environment
+    cmds:
+      - "mkdir -p data"
+      - "go mod download"
+      - task: migrate.up
+
+  # Cross-platform health check
+  health:
+    desc: Check server health status
+    cmds:
+      - |
+        echo ""
+        echo "⚕️  Brevity Health Check"
+        echo "======================"
+        echo ""
+        echo "🔗 {{.HEALTH_URL}}"
+        echo ""
+        echo "To check via terminal:"
+        echo "curl -s {{.HEALTH_URL}} | jq || curl -s {{.HEALTH_URL}}"
+        echo ""
+        if command -v start >/dev/null; then
+          start "" "{{.HEALTH_URL}}" 2>/dev/null || true
+        elif command -v xdg-open >/dev/null; then
+          xdg-open "{{.HEALTH_URL}}" 2>/dev/null || true
+        fi
+
+  # Complete workflow
+  dev:
+    desc: Start complete development environment
+    cmds:
+      - task: migrate.up
+      - task: server
+
+  # Help
+  list:
+    desc: Show available commands
+    cmds:
+      - task --list-all

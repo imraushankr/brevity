@@ -1,0 +1,26 @@
+BREVITY TASKFILE COMMAND REFERENCE
+
+Basic Commands:
+  task server       - Start development server (debug mode)
+  task server:prod - Start production server (release mode)
+  task health      - Check server health (opens in browser)
+  task list        - Show all available commands
+
+Database Migrations:
+  task migrate.create <name> - Create new migration files
+  task migrate.up           - Apply all pending migrations
+  task migrate.down         - Rollback last migration
+  task db.reset            - Reset database (drop & recreate)
+
+Development Workflow:
+  task setup - Initialize development environment
+  task dev   - Complete workflow (migrations + server start)
+
+Environment Variables:
+  DB_FILE=path/to/db.task <command>  - Use custom database path
+  GIN_MODE=release task server       - Run in production mode
+
+Examples:
+  task migrate.create -- add_users_table
+  task db.reset && task dev
+  DB_FILE=test.db task migrate.up
