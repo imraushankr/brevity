@@ -24,23 +24,28 @@ type Storage interface {
 
 // CloudinaryStorage implements Storage for Cloudinary
 type CloudinaryStorage struct {
-	cld   *cloudinary.Cloudinary
-	cfg   *configs.CloudinaryConfig
-	local *LocalStorage
+	cld    *cloudinary.Cloudinary
+	cfg    *configs.CloudinaryConfig
+	local  *LocalStorage
+	logger logger.Logger
 }
 
 // LocalStorage implements Storage for local filesystem
 type LocalStorage struct {
 	uploadDir string
 	baseURL   string
+	logger    logger.Logger
 }
 
 // NewStorage creates a new storage instance based on configuration
 func NewStorage(cfg *configs.Config) (Storage, error) {
+	log := logger.Get()
+
 	// Always initialize local storage as fallback
 	local := &LocalStorage{
 		uploadDir: cfg.App.UploadDir,
 		baseURL:   cfg.App.BaseURL,
+		logger:    log,
 	}
 
 	// Initialize Cloudinary if configured
@@ -51,20 +56,21 @@ func NewStorage(cfg *configs.Config) (Storage, error) {
 			cfg.Cloudinary.APISecret,
 		)
 		if err != nil {
-			logger.Error("Failed to initialize Cloudinary, falling back to local storage",
+			log.Error("Failed to initialize Cloudinary, falling back to local storage",
 				logger.ErrorField(err))
 			return local, nil
 		}
 
-		logger.Info("Cloudinary storage initialized")
+		log.Info("Cloudinary storage initialized")
 		return &CloudinaryStorage{
-			cld:   cld,
-			cfg:   &cfg.Cloudinary,
-			local: local,
+			cld:    cld,
+			cfg:    &cfg.Cloudinary,
+			local:  local,
+			logger: log,
 		}, nil
 	}
 
-	logger.Info("Using local storage")
+	log.Info("Using local storage")
 	return local, nil
 }
 
@@ -81,14 +87,14 @@ func (cs *CloudinaryStorage) UploadFile(ctx context.Context, file multipart.File
 		PublicID: publicID,
 	})
 	if err != nil {
-		logger.Warn("Failed to upload to Cloudinary, falling back to local storage",
+		cs.logger.Warn("Failed to upload to Cloudinary, falling back to local storage",
 			logger.ErrorField(err))
 
 		// Fallback to local storage
 		return cs.local.UploadFile(ctx, file, header, folder, publicID)
 	}
 
-	logger.Info("File uploaded to Cloudinary",
+	cs.logger.Info("File uploaded to Cloudinary",
 		logger.String("url", uploadResult.SecureURL),
 		logger.String("public_id", uploadResult.PublicID))
 
@@ -123,7 +129,7 @@ func (ls *LocalStorage) UploadFile(ctx context.Context, file multipart.File, hea
 	gitKeepPath := filepath.Join(fullPath, ".gitkeep")
 	if _, err := os.Stat(gitKeepPath); os.IsNotExist(err) {
 		if _, err := os.Create(gitKeepPath); err != nil {
-			logger.Warn("Failed to create .gitkeep file", logger.ErrorField(err))
+			ls.logger.Warn("Failed to create .gitkeep file", logger.ErrorField(err))
 		}
 	}
 
@@ -150,7 +156,7 @@ func (ls *LocalStorage) UploadFile(ctx context.Context, file multipart.File, hea
 	// Generate URL
 	url := fmt.Sprintf("%s/uploads/%s/%s", strings.TrimRight(ls.baseURL, "/"), folder, publicID)
 
-	logger.Info("File saved locally",
+	ls.logger.Info("File saved locally",
 		logger.String("path", filePath),
 		logger.String("url", url))
 
