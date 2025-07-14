@@ -30,7 +30,7 @@ func LoadConfig(configPath string) (*Config, error) {
 	// Enable environment variable expansion
 	v.SetEnvPrefix("")
 	v.AllowEmptyEnv(true)
-	
+
 	setDefaults(v)
 
 	if err := v.ReadInConfig(); err != nil {
@@ -63,6 +63,8 @@ func expandEnvVars(v *viper.Viper) {
 	keys := []string{
 		"app.environment",
 		"app.debug",
+		"app.upload_dir",
+		"app.base_url",
 		"server.host",
 		"server.port",
 		"server.read_timeout",
@@ -77,6 +79,7 @@ func expandEnvVars(v *viper.Viper) {
 		"jwt.access_token_expiry",
 		"jwt.refresh_token_secret",
 		"jwt.refresh_token_expiry",
+		"jwt.reset_token_secret",
 		"jwt.issuer",
 		"jwt.secure_cookie",
 		"email.provider",
@@ -87,6 +90,10 @@ func expandEnvVars(v *viper.Viper) {
 		"email.smtp.from_email",
 		"email.smtp.from_name",
 		"email.smtp.use_tls",
+		"cloudinary.cloud_name",
+		"cloudinary.api_key",
+		"cloudinary.api_secret",
+		"cloudinary.folder",
 		"logger.level",
 		"logger.format",
 		"logger.file_path",
@@ -127,6 +134,7 @@ func setDefaults(v *viper.Viper) {
 
 	v.SetDefault("jwt.access_token_expiry", "15m")
 	v.SetDefault("jwt.refresh_token_expiry", "168h")
+	v.SetDefault("jwt.reset_token_secret", "default_reset_secret_change_in_production")
 	v.SetDefault("jwt.issuer", "brevity-service")
 	v.SetDefault("jwt.secure_cookie", false)
 

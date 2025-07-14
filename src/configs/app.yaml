@@ -3,6 +3,8 @@ app:
   version: "1.0.0"
   environment: "${APP_ENV}" # local|development|staging|production
   debug: "${APP_DEBUG}"
+  upload_dir: "./uploads"
+  base_url: "http://localhost:8080"
 
 server:
   host: "${SERVER_HOST}"
@@ -24,6 +26,7 @@ jwt:
   access_token_expiry: "${JWT_ACCESS_EXPIRY}"
   refresh_token_secret: "${JWT_REFRESH_SECRET}"
   refresh_token_expiry: "${JWT_REFRESH_EXPIRY}"
+  reset_token_secret: "${JWT_RESET_SECRET}"
   issuer: "${JWT_ISSUER}"
   secure_cookie: "${JWT_SECURE_COOKIE}"
 
@@ -37,6 +40,12 @@ email:
     from_email: "${SMTP_FROM_EMAIL}"
     from_name: "${SMTP_FROM_NAME}"
     use_tls: "${SMTP_USE_TLS}"
+
+cloudinary:
+  cloud_name: "${CLOUDINARY_CLOUD_NAME}"
+  api_key: "${CLOUDINARY_API_KEY}"
+  api_secret: "${CLOUDINARY_API_SECRET}"
+  folder: "brevity"
 
 logger:
   level: "${LOG_LEVEL}" # debug|info|warn|error

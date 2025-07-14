@@ -3,14 +3,15 @@ package configs
 import "time"
 
 type Config struct {
-	App       AppConfig       `mapstructure:"app"`
-	Server    ServerConfig    `mapstructure:"server"`
-	Database  DatabaseConfig  `mapstructure:"database"`
-	JWT       JWTConfig       `mapstructure:"jwt"`
-	Email     EmailConfig     `mapstructure:"email"`
-	Logger    LoggerConfig    `mapstructure:"logger"`
-	CORS      CORSConfig      `mapstructure:"cors"`
-	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
+	App        AppConfig        `mapstructure:"app"`
+	Server     ServerConfig     `mapstructure:"server"`
+	Database   DatabaseConfig   `mapstructure:"database"`
+	JWT        JWTConfig        `mapstructure:"jwt"`
+	Email      EmailConfig      `mapstructure:"email"`
+	Cloudinary CloudinaryConfig `mapstructure:"cloudinary"`
+	Logger     LoggerConfig     `mapstructure:"logger"`
+	CORS       CORSConfig       `mapstructure:"cors"`
+	RateLimit  RateLimitConfig  `mapstructure:"rate_limit"`
 }
 
 type AppConfig struct {
@@ -18,6 +19,8 @@ type AppConfig struct {
 	Version     string `mapstructure:"version"`
 	Environment string `mapstructure:"environment"`
 	Debug       bool   `mapstructure:"debug"`
+	UploadDir   string `mapstructure:"upload_dir"`
+	BaseURL     string `mapstructure:"base_url"`
 }
 
 type ServerConfig struct {
@@ -45,6 +48,7 @@ type JWTConfig struct {
 	AccessTokenExpiry  time.Duration `mapstructure:"access_token_expiry"`
 	RefreshTokenSecret string        `mapstructure:"refresh_token_secret"`
 	RefreshTokenExpiry time.Duration `mapstructure:"refresh_token_expiry"`
+	ResetTokenSecret   string        `mapstructure:"reset_token_secret"`
 	Issuer             string        `mapstructure:"issuer"`
 	SecureCookie       bool          `mapstructure:"secure_cookie"`
 }
@@ -62,6 +66,13 @@ type SMTPConfig struct {
 	FromEmail string `mapstructure:"from_email"`
 	FromName  string `mapstructure:"from_name"`
 	UseTLS    bool   `mapstructure:"use_tls"`
+}
+
+type CloudinaryConfig struct {
+	CloudName string `mapstructure:"cloud_name"`
+	APIKey    string `mapstructure:"api_key"`
+	APISecret string `mapstructure:"api_secret"`
+	Folder    string `mapstructure:"folder"`
 }
 
 type LoggerConfig struct {
