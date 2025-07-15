@@ -12,8 +12,8 @@ func RegisterAuthRoutes(r *gin.RouterGroup, handler *v1.UserHandler, authService
 	authGroup := r.Group("/auth")
 	{
 		// Public endpoints
-		authGroup.POST("/register", handler.Register)
-		authGroup.POST("/login", handler.Login)
+		authGroup.POST("/signup", handler.Register)
+		authGroup.POST("/signin", handler.Login)
 		authGroup.GET("/verify-email", handler.VerifyEmail)
 		authGroup.POST("/password-reset", handler.InitiatePasswordReset)
 		authGroup.POST("/password-reset/confirm", handler.CompletePasswordReset)

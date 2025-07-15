@@ -86,7 +86,6 @@
 // 	u.ResetPasswordExpires = nil
 // }
 
-
 package models
 
 import (
@@ -94,6 +93,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/teris-io/shortid"
+	"gorm.io/gorm"
 )
 
 type Role string
@@ -204,7 +204,18 @@ type ValidationErrorResponse struct {
 }
 
 // User methods
-func (u *User) BeforeCreate() error {
+// func (u *User) BeforeCreate() error {
+// 	id, err := sid.Generate()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	u.ID = id
+// 	u.Role = RoleUser // Default role
+// 	return nil
+// }
+
+// User methods
+func (u *User) BeforeCreate(tx *gorm.DB) error {
 	id, err := sid.Generate()
 	if err != nil {
 		return err

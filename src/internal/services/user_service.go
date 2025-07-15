@@ -118,7 +118,7 @@ func (s *userService) Register(ctx context.Context, user *models.User) error {
 	}
 
 	// Send verification email
-	verificationLink := fmt.Sprintf("%s/verify-email?token=%s", s.cfg.App.BaseURL, token)
+	verificationLink := fmt.Sprintf("%s/api/v1/auth/verify-email?token=%s", s.cfg.App.BaseURL, token)
 	if err := s.email.SendVerificationEmail(user.Email, verificationLink); err != nil {
 		s.log.Error("Failed to send verification email",
 			logger.NamedError("error", err),
