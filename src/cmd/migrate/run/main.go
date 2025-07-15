@@ -15,7 +15,7 @@ import (
 
 const (
 	appName       = "Brevity"
-	defaultDBFile = "/data/brevity.db" // Updated to use /data directory
+	defaultDBFile = "data/brevity.db"
 	migrationsDir = "src/migrations"
 )
 
